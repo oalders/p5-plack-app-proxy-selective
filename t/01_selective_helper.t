@@ -25,9 +25,10 @@ subtest 'test for match_uri' => sub {
 };
 
 subtest 'test for server_local' => sub {
-    my $dir1 = Plack::App::Proxy::Selective::server_local('/script');
-    my $dir2 = Plack::App::Proxy::Selective::server_local('script');
-    my $dir3 = Plack::App::Proxy::Selective::server_local('script/');
+    my $base_dir = file(__FILE__)->dir;
+    my $dir1 = Plack::App::Proxy::Selective::server_local($base_dir, '/script');
+    my $dir2 = Plack::App::Proxy::Selective::server_local($base_dir, 'script');
+    my $dir3 = Plack::App::Proxy::Selective::server_local($base_dir, 'script/');
 
     is($dir1->root, $dir2->root);
     is($dir2->root, $dir3->root);

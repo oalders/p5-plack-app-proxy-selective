@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 
-use Test::Most;
+use Test::More;
+use Path::Class;
 
 BEGIN { use_ok 'Plack::App::Proxy::Selective' }
 
@@ -28,10 +29,13 @@ subtest 'initlialize selective with filter' => sub {
         'css' => '/style',
     };
 
-    my $selective = Plack::App::Proxy::Selective->new(filter => +{
+    my $selective = Plack::App::Proxy::Selective->new(
+        filter => +{
             'google.com' => $googlefilter,
             'www.yahoo.co.jp' => $yahoofilter,
-        });
+        },
+        base_dir => file(__FILE__)->dir,
+    );
     my $filter = $selective->filter;
 
     is_deeply($filter->{'google.com'}, $googlefilter, 'google filter is same as original');

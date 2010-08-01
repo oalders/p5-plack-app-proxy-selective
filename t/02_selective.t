@@ -2,29 +2,22 @@ use strict;
 use warnings;
 
 use Test::Most;
-
-use HTTP::Request;
-use HTTP::Request::Common;
-use Plack::Test;
-use Plack::App::Proxy::Test;
-use Test::WWW::Mechanize::PSGI;
-
-use Data::Dumper;
-
-$Plack::Test::Impl = 'Server';
+use Path::Class;
 
 use Plack::App::Proxy::Selective;
 
 
-
 subtest 'test with normal string filter' => sub {
 
-    my $selective = Plack::App::Proxy::Selective->new(filter => +{
-        'google.com' => +{
-            '/script' => '/js',
-            'js' => '/js',
-         },
-    });
+    my $selective = Plack::App::Proxy::Selective->new(
+        filter => +{
+            'google.com' => +{
+                '/script' => '/js',
+                'js' => '/js',
+            },
+        },
+        base_dir => file(__FILE__)->dir,
+    );
 
     dies_ok {
         $selective->call(+{});
@@ -52,13 +45,16 @@ subtest 'test with normal string filter' => sub {
 
 subtest 'test with regex filter' => sub {
 
-    my $selective = Plack::App::Proxy::Selective->new(filter => +{
-        'google.com' => +{
-            '/css/.*/' => '/style/',
-            '/script/.*' => '/js/ext/',
-            '/js/.*js' => '/js/ext/',
-         },
-    });
+    my $selective = Plack::App::Proxy::Selective->new(
+        filter => +{
+            'google.com' => +{
+                '/css/.*/' => '/style/',
+                '/script/.*' => '/js/ext/',
+                '/js/.*js' => '/js/ext/',
+            },
+        },
+        base_dir => file(__FILE__)->dir,
+    );
 
     lives_ok {
         $selective->call(+{ 'HTTP_HOST' => 'google.com', 'REQUEST_URI' => 'http://google.com/script/test.js' });

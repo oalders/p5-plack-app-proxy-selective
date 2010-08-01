@@ -5,17 +5,13 @@ use warnings;
 
 use parent qw/Plack::Component/;
 
-use Plack::Util::Accessor qw/filter/;
+use Plack::Util::Accessor qw/filter base_dir/;
 use Plack::App::Proxy;
 use Plack::App::Directory;
-
-use Data::Dumper;
-
 use Path::Class;
+use Carp;
 
 our $VERSION = '0.01';
-
-my $base_dir = file(__FILE__)->dir;
 
 
 sub match_uri {
@@ -31,44 +27,33 @@ sub match_uri {
             $& =~ /(\w+\.\w+$)/;
             $result = $1;
         }
-        warn $result;
         return $result;
     }
 }
 
 sub server_local {
-    my $target_dir = shift;
+    my ($base_dir, $target_dir) = @_;
     return Plack::App::Directory->new(root => $base_dir->subdir($target_dir));
 }
 
 sub call {
     my ($self, $env) = @_;
 
-    while ( my ($key, $value) = each %$env ) {
-        warn "$key -> $value\n";
-    }
-    warn $env->{'REQUEST_URI'};
-    warn 'call';
-
     my %filter = %{$self->filter};
 
     while( my ($host, $mapping) = each %filter ) {
-        warn 'loop';
         if ( $env->{'HTTP_HOST'} =~ /$host/ ) {
-            warn 'first match';
             my %mapping = %{$mapping};
             while ( my ($source_dir, $target_dir) = each %mapping ) {
                 if ( my $path = match_uri($env, $source_dir) ) {
-                    warn 'second match';
-                    my $dir = server_local($target_dir)->to_app;
+                    my $dir = server_local($self->base_dir, $target_dir)->to_app;
                     $env->{PATH_INFO} = $path;
+                    carp "hoge";
                     return $dir->($env);
                 }
             }
         }
     }
-
-    warn 'proxy';
 
     my $proxy = Plack::App::Proxy->new->to_app;
     $env->{'plack.proxy.url'} = $env->{'REQUEST_URI'};
