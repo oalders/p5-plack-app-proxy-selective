@@ -9,7 +9,6 @@ use Plack::Util::Accessor qw/filter base_dir/;
 use Plack::App::Proxy;
 use Plack::App::Directory;
 use Path::Class;
-use Carp;
 
 our $VERSION = '0.01';
 
@@ -48,7 +47,6 @@ sub call {
                 if ( my $path = match_uri($env, $source_dir) ) {
                     my $dir = server_local($self->base_dir, $target_dir)->to_app;
                     $env->{PATH_INFO} = $path;
-                    carp "hoge";
                     return $dir->($env);
                 }
             }
