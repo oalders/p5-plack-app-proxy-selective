@@ -2,12 +2,18 @@ use inc::Module::Install;
 name 'Plack-App-Proxy-Selective';
 all_from 'lib/Plack/App/Proxy/Selective.pm';
 
-# requires '';
+requires 'Plack::Component';
+requires 'Plack::Util::Accessor';
+requires 'Plack::App::Directory';
+requires 'Plack::App::Proxy';
+requires 'Path::Class';
 
 tests 't/*.t';
 author_tests 'xt';
 
 test_requires 'Test::More';
+test_requires 'Test::Most';
 auto_set_repository;
 auto_include;
+auto_install;
 WriteAll;
