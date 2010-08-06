@@ -10,23 +10,15 @@ use Plack::App::Proxy;
 use Plack::App::Directory;
 use Path::Class;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
+my $filename = qr/\/?(?:\w+?\.)+\w+$/;
 
 sub match_uri {
     my ($env, $source_dir) = @_;
 
-    if ( $env->{'REQUEST_URI'} =~ /$env->{'HTTP_HOST'}\/?$source_dir(\/?\w+\.\w+)?/ ) {
-        my $result;
-
-        if ( $1 ) {
-            $result = $1;
-        }
-        else {
-            $& =~ /(\w+\.\w+$)/;
-            $result = $1;
-        }
-        return $result;
+    if ( $env->{'REQUEST_URI'} =~ /$env->{'HTTP_HOST'}\/?$source_dir($filename)?/ ) {
+        return $1 || ($& =~ /($filename)/ && $1) || undef;
     }
 }
 
@@ -41,11 +33,11 @@ sub call {
     my %filter = %{$self->filter};
 
     while( my ($host, $mapping) = each %filter ) {
+
         if ( $env->{'HTTP_HOST'} =~ /$host/ ) {
-            my %mapping = %{$mapping};
-            while ( my ($source_dir, $target_dir) = each %mapping ) {
+            for my $source_dir ( keys %{$mapping} ) {
                 if ( my $path = match_uri($env, $source_dir) ) {
-                    my $dir = server_local($self->base_dir, $target_dir)->to_app;
+                    my $dir = server_local($self->base_dir, $mapping->{$source_dir})->to_app;
                     $env->{PATH_INFO} = $path;
                     return $dir->($env);
                 }

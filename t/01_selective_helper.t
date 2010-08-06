@@ -24,6 +24,28 @@ subtest 'test for match_uri' => sub {
     done_testing;
 };
 
+subtest 'test for match_uri with multiple suffixes' => sub {
+    my $env = +{
+        REQUEST_URI => 'http://google.com/script/hoge.user.js',
+        HTTP_HOST => 'google.com',
+    };
+    my $source_dir = 'script';
+    is(Plack::App::Proxy::Selective::match_uri($env, $source_dir), '/hoge.user.js');
+
+    done_testing;
+};
+
+subtest 'test for match_uri with greedy regex' => sub {
+    my $env = +{
+        REQUEST_URI => 'http://google.com/script/hoge.js',
+        HTTP_HOST => 'google.com',
+    };
+    my $source_dir = 'script.*';
+    is(Plack::App::Proxy::Selective::match_uri($env, $source_dir), '/hoge.js');
+
+    done_testing;
+};
+
 subtest 'test for server_local' => sub {
     my $base_dir = file(__FILE__)->dir;
     my $dir1 = Plack::App::Proxy::Selective::server_local($base_dir, '/script');
