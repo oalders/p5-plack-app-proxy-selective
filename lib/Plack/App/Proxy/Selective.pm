@@ -55,15 +55,30 @@ __END__
 
 =head1 NAME
 
-Plack::App::Proxy::Selective -
+Plack::App::Proxy::Selective - Proxy app that serves selected paths from local dir.
 
 =head1 SYNOPSIS
 
   use Plack::App::Proxy::Selective;
+  use Path::Class;
+
+  Plack::App::Proxy::Selective->new(
+      filter => +{
+          'google.com' => +{
+              '/style' => 'css',
+          },
+          'www.yahoo.co.jp' => +{
+              'js' => 'script',
+          }
+      }
+      base_dir => file(__FILE__)->dir,
+  )->to_app;
 
 =head1 DESCRIPTION
 
-Plack::App::Proxy::Selective is
+Plack::App::Proxy::Selective behave as proxy that serves files from local disk, instead of some proxied remote files.
+You can specify hosts, remote path and local directory with 'filter' param as hash reference.
+Hosts and remote path can include regular expressions like '/script/.*' or 'script/.*.js'.
 
 =head1 AUTHOR
 
