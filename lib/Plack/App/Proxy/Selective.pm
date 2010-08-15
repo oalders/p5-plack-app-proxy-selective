@@ -10,7 +10,7 @@ use Plack::App::Proxy;
 use Plack::App::Directory;
 use Path::Class;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my $filename = qr/\/?(?:\w+?\.)+\w+$/;
 
