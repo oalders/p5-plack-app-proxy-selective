@@ -70,7 +70,7 @@ Plack::App::Proxy::Selective - Proxy app that serves selected paths from local d
           'www.yahoo.co.jp' => +{
               'js' => 'script',
           }
-      }
+      },
       base_dir => file(__FILE__)->dir,
   )->to_app;
 
